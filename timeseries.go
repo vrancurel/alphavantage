@@ -9,9 +9,10 @@ import (
 
 // TimeSeries represents the overall struct for time series
 type TimeSeries struct {
-	Metadata         TimeSeriesMetadata        `json:"Meta Data"`
-	TimeSeriesDaily  map[string]TimeSeriesData `json:"Time Series (Daily)"`
-	TimeSeriesWeekly map[string]TimeSeriesData `json:"Weekly Time Series"`
+	Metadata          TimeSeriesMetadata        `json:"Meta Data"`
+	TimeSeriesDaily   map[string]TimeSeriesData `json:"Time Series (Daily)"`
+	TimeSeriesWeekly  map[string]TimeSeriesData `json:"Weekly Time Series"`
+	TimeSeriesMonthly map[string]TimeSeriesData `json:"Monthly Time Series"`
 }
 
 // TimeSeriesMetadata is the metadata subset of TimeSeries
@@ -33,8 +34,10 @@ type TimeSeriesData struct {
 
 // TimeSeriesAdjusted - like TimeSeries, but inclused dividends and adjusted close
 type TimeSeriesAdjusted struct {
-	Metadata           TimeSeriesMetadata                `json:"Meta Data"`
-	TimeSeriesAdjusted map[string]TimeSeriesAdjustedData `json:"Time Series (Daily)"`
+	Metadata          TimeSeriesMetadata                `json:"Meta Data"`
+	TimeSeriesDaily   map[string]TimeSeriesAdjustedData `json:"Time Series (Daily)"`
+	TimeSeriesWeekly  map[string]TimeSeriesAdjustedData `json:"Weekly Adjusted Time Series"`
+	TimeSeriesMonthly map[string]TimeSeriesAdjustedData `json:"Monthly Adjusted Time Series"`
 }
 
 // TimeSeriesAdjustedData - like TimeSeries, but inclused dividends and adjusted close
@@ -67,8 +70,7 @@ func toTimeSeriesAdjusted(buf []byte) (*TimeSeriesAdjusted, error) {
 
 // TimeSeriesAdjusted fetches the time series for given symbol from API.
 // The order of dates in returned object is random because it's a map.
-func (c *Client) TimeSeriesAdjusted(symbol string, outputSize OutPutSize) (*TimeSeriesAdjusted, error) {
-	const interval = "TIME_SERIES_DAILY_ADJUSTED"
+func (c *Client) TimeSeriesAdjusted(symbol string, interval TimeSeriesIntervalAdjusted, outputSize OutputSize) (*TimeSeriesAdjusted, error) {
 	url := fmt.Sprintf("%s/query?function=%s&symbol=%s&apikey=%s&outputsize=%s", baseURL, interval, symbol, c.apiKey, outputSize)
 	body, err := c.makeHTTPRequest(url)
 	if err != nil {
@@ -84,7 +86,7 @@ func (c *Client) TimeSeriesAdjusted(symbol string, outputSize OutPutSize) (*Time
 
 // TimeSeries fetches the time series for given symbol from API.
 // The order of dates in returned object is random because it's a map.
-func (c *Client) TimeSeries(symbol string, interval TimeSeriesInterval, outputSize OutPutSize) (*TimeSeries, error) {
+func (c *Client) TimeSeries(symbol string, interval TimeSeriesInterval, outputSize OutputSize) (*TimeSeries, error) {
 	url := fmt.Sprintf("%s/query?function=%s&symbol=%s&apikey=%s&outputsize=%s", baseURL, interval, symbol, c.apiKey, outputSize)
 	body, err := c.makeHTTPRequest(url)
 	if err != nil {

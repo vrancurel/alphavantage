@@ -10,7 +10,7 @@ func TestToIndicatorStoch(t *testing.T) {
 	var buf = `
 	{
 		"Meta Data": {
-			"1: Symbol": "MSFT",
+			"1: Symbol": "STOCK1",
 			"2: Indicator": "Stochastic (STOCH)",
 			"3: Last Refreshed": "2019-09-20",
 			"4: Interval": "daily",
@@ -35,7 +35,7 @@ func TestToIndicatorStoch(t *testing.T) {
 `
 	indicator, err := toIndicatorStoch([]byte(buf))
 	assert.NoError(t, err)
-	assert.EqualStrings(t, "MSFT", indicator.Metadata.Symbol)
+	assert.EqualStrings(t, "STOCK1", indicator.Metadata.Symbol)
 	assert.EqualInt(t, 2, len(indicator.TechnicalAnalysis))
 
 	ta1, exists := indicator.TechnicalAnalysis["2019-09-20"]

@@ -1,0 +1,4 @@
+github.com/AMekss/assert v0.0.0-20220725060815-73980ddf7ef8 h1:dH6aV4uGVlSQSgSEW81+gB5Kjiy21SSmaALx3MYcNWA=
+github.com/AMekss/assert v0.0.0-20220725060815-73980ddf7ef8/go.mod h1:TXtrIC0YadBuuVjEHKncjluW/PdWpcf7pJVShfptMDM=
+github.com/shopspring/decimal v1.3.1 h1:2Usl1nmF/WZucqkFZhnfFYxxxu8LG21F6nPQBE5gKV8=
+github.com/shopspring/decimal v1.3.1/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
