@@ -1,6 +1,7 @@
 package alphavantage
 
 import (
+	"encoding/csv"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,7 +10,9 @@ import (
 )
 
 const baseURL = "https://www.alphavantage.co"
+const baseURLApi = "https://alphavantageapi.co"
 const httpDelayPerRequest = time.Second * 15
+const userAgent = "Go client: github.com/sklinkert/alphavantage"
 
 // Client represents a new alphavantage client
 type Client struct {
@@ -54,7 +57,7 @@ func (c *Client) makeHTTPRequest(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("building http request failed: %w", err)
 	}
-	req.Header.Set("User-Agent", "Go client: github.com/sklinkert/alphavantage")
+	req.Header.Set("User-Agent", userAgent)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -72,4 +75,44 @@ func (c *Client) makeHTTPRequest(url string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func (c *Client) makeHTTPRequestForCsv(url string) ([][]string, error) {
+	c.Lock()
+	defer c.Unlock()
+
+	// Run request only every x seconds (determined by httpNextRequest)
+	now := time.Now()
+	if now.Before(c.httpNextRequest) {
+		ticker := time.NewTicker(c.httpNextRequest.Sub(now))
+		<-ticker.C
+	}
+	defer func(c *Client) {
+		c.httpNextRequest = time.Now().Add(httpDelayPerRequest)
+	}(c)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("building http request failed: %w", err)
+	}
+	req.Header.Set("User-Agent", userAgent)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	reader := csv.NewReader(resp.Body)
+	data, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: expected %d, got %d",
+			http.StatusOK, resp.StatusCode)
+	}
+
+	return data, nil
 }
